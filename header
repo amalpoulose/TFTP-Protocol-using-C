@@ -1,0 +1,38 @@
+union TFTP
+{
+        struct RRQ
+        {
+                short int opcode;
+                char file[128];
+                char All_01;
+                char mode[10];
+                char All_02;
+        }r1;
+        struct WRQ
+        {
+                short int opcode;
+                char file[128];
+                char All_01;
+                char mode[10];
+                char All_02;
+        }r2;
+        struct DATA
+        {
+                short int opcode;
+                short int bck_no;
+                char data[512];
+        }r3;
+        struct ACK
+        {
+                short int opcode;
+                short int bck_no;
+        }r4;
+	struct ERROR
+        {
+                short int opcode;
+                short int errno;
+                char errdata[128];
+                char All_0;
+        }r5;
+}u;
+
