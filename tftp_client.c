@@ -9,7 +9,7 @@
 #include<arpa/inet.h>
 #include"header"
 
-#define PORT_NO 3000
+#define PORT_NO 3001
 
 
 int main(void)
@@ -29,9 +29,9 @@ int main(void)
 	v1.sin_addr.s_addr=inet_addr("127.0.0.1");
 	len=sizeof(v1);
 	//RRQ
-	u.r2.opcode=1;
-	strcpy(u.r2.file,"amal");
-	strcpy(u.r2.mode,"netascii");
+/*	u.r1.opcode=1;
+	strcpy(u.r1.file,"amal");
+	strcpy(u.r1.mode,"netascii");
 	sendto(sfd,&u,sizeof(u),0,(struct sockaddr*)&v1,len);
 	fp=fopen("amal1","w");
 	int flg=1;
@@ -48,7 +48,7 @@ int main(void)
 		if(bk_no+1==u.r3.bck_no)
 		{
 			bk_no=u.r3.bck_no;
-			fputs(u.r3.data,fp);
+			fwrite(u.r3.data,d_len,1,fp);
 		}
 		u.r4.opcode=4;
 		u.r4.bck_no=bk_no;
@@ -58,4 +58,33 @@ int main(void)
 	}while(d_len==512);
 	bk_no=0;
 	fclose(fp);
+*/	
+	//wrq
+	u.r2.opcode=2;
+	strcpy(u.r2.file,"amal12");
+	strcpy(u.r2.mode,"netascii");
+	sendto(sfd,&u,sizeof(u),0,(struct sockaddr*)&v1,len);
+	recvfrom(sfd,&u,sizeof(u),0,(struct sockaddr*)&v,&len);
+	if(u.r4.opcode==5)
+	{
+	printf("%d %s\n",u.r5.errno,u.r5.errdata);
+	return;
+	}
+	fp=fopen("amal","r");
+	while(fread(u.r3.data,1,512,fp))
+{
+	d_len=strlen(u.r3.data);
+	u.r3.opcode=3;
+	u.r3.bck_no=++bk_no;
+	sendto(sfd,&u,sizeof(u),0,(struct sockaddr*)&v1,len);
+	recvfrom(sfd,&u,sizeof(u),0,(struct sockaddr*)&v,&len);
+	bzero(u.r3.data,sizeof(u.r3.data));
+}
+if(d_len==512)	
+{		
+	u.r3.opcode=3;
+	u.r3.bck_no=++bk_no;
+	sendto(sfd,&u,sizeof(u),0,(struct sockaddr*)&v1,len);
+}
+fclose(fp);
 }
